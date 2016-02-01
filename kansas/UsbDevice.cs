@@ -10,7 +10,7 @@ namespace kansas
 
         public UsbDevice(string address)
         {
-            _stream = File.Open(address);
+            _stream = File.Open(address, FileMode.Open, FileAccess.ReadWrite);
         }
 
         /// <summary>

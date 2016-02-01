@@ -40,6 +40,8 @@
     <Compile Include="UsbDevice.cs" />
     <Compile Include="ISerialReader.cs" />
     <Compile Include="ISerialWriter.cs" />
+    <Compile Include="AntReader.cs" />
+    <Compile Include="AntMessageEventArgs.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
