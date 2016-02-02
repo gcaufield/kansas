@@ -14,10 +14,6 @@ namespace kansas
             {
                 reader.Start();
 
-                byte[] cmd = new byte[] { 0x4B, 0 };
-                byte[] framedCmd = framer.GetFramedMessage(cmd);
-
-                device.Write(framedCmd, framedCmd.Length);
                 while (true)
                 {
                     Thread.Sleep(1000);

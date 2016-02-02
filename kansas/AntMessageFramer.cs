@@ -9,22 +9,23 @@ namespace kansas
         {
         }
 
-        public byte[] GetFramedMessage(byte[] message)
+        public byte[] GetFramedMessage(AntMessage message)
         {
             byte[] framedMessage = new byte[message.Length + 3];
 
             framedMessage[0] = TxSync;
-            framedMessage[1] = (byte)(message.Length - 1);
+            framedMessage[1] = message.Length;
+            framedMessage[2] = message.MessageId;
 
-            Array.Copy(message, 0, framedMessage, 2, message.Length);
+            message.GetMessageContent(framedMessage, 3);
 
-            byte crc = 0;
+            byte checksum = 0;
             for (int i = 0; i < framedMessage.Length - 2; i++)
             {
-                crc ^= framedMessage[i];
+                checksum ^= framedMessage[i];
             }
 
-            framedMessage[framedMessage.Length - 1] = crc;
+            framedMessage[framedMessage.Length - 1] = checksum;
             return framedMessage;
         }
     }

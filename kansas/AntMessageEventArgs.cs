@@ -7,13 +7,13 @@ namespace kansas
 	public class AntMessageEventArgs
         : EventArgs
 	{
-        public AntMessage Message
+        public IRxMessage Message
         {
             get;
             private set;
         }
 
-        public AntMessageEventArgs(AntMessage message)
+        public AntMessageEventArgs(IRxMessage message)
         {
             Message = message;
         }

@@ -15,6 +15,11 @@ namespace kansas
         : IDisposable
     {
         private const int BufferSize = 256;
+        private const int SyncOffset = 0;
+        private const int ContentLengthOffset = 1;
+        private const int MessageIdOffset = 2;
+        private const int MessageContentOffset = 3;
+
         private const byte MesgTxSync = 0xA4;
 
         private bool _stopped;
@@ -97,8 +102,8 @@ namespace kansas
                         case ReadState.Size:
                             mesgBuffer = new byte[buffer[i] + 4];
                             dataRemaining = (byte)(buffer[i] + 2);
-                            mesgBuffer[0] = MesgTxSync;
-                            mesgBuffer[1] = buffer[i];
+                            mesgBuffer[SyncOffset] = MesgTxSync;
+                            mesgBuffer[ContentLengthOffset] = buffer[i];
                             mesgOffset = 2;
                             state = ReadState.Data;
                             break;
@@ -136,14 +141,18 @@ namespace kansas
             }
         }
 
-        private void OnMessageCompleted(byte[] mesgBuffer)
+        private void OnMessageCompleted(byte[] buffer)
         {
-            Console.Write("Message: ");
-            foreach (byte b in mesgBuffer)
+            if (MessageRecieved != null)
             {
-                Console.Write("[{0:X2}]", b);
+                RxAntMessage message = new RxAntMessage(
+                   buffer[MessageIdOffset],
+                   buffer,
+                   MessageContentOffset,
+                   buffer[ContentLengthOffset]);
+
+                MessageRecieved(this, new AntMessageEventArgs(message));
             }
-            Console.WriteLine();
         }
     }
 }
