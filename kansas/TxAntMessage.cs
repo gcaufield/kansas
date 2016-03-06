@@ -22,12 +22,14 @@ namespace kansas
 
         public void SetByte(byte value, uint offset)
         {
-            throw new NotImplementedException();
+            MessageContent.Seek(offset, SeekOrigin.Begin);
+            _writer.Write(value);
         }
 
         public void SetUInt16(uint value, uint offset)
         {
-            throw new NotImplementedException();
+            MessageContent.Seek(offset, SeekOrigin.Begin);
+            _writer.Write(value);
         }
     }
 }

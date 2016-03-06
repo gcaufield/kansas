@@ -10,7 +10,6 @@ namespace kansas
         : IDisposable, IAntMessage
     {
         private MemoryStream _stream;
-        private byte[] _message;
         private byte _messageId;
 
         /// <summary>
@@ -32,7 +31,7 @@ namespace kansas
         {
             get
             {
-                return (byte)_message.Length;
+                return (byte)_stream.Length;
             }
         }
 
@@ -63,18 +62,17 @@ namespace kansas
         protected AntMessage(byte messageId, byte size)
             : this(messageId)
         {
-            _message = new byte[size];
-            _stream = new MemoryStream(_message);
+            _stream = new MemoryStream(size);
         }
 
         public void GetMessageContent(byte[] buffer, int offset)
         {
-            if ((buffer.Length - offset) < _message.Length)
+            if ((buffer.Length - offset) < _stream.Length)
             {
                 throw new InvalidOperationException("Buffer is not large enough to hold message content");
             }
 
-            Array.Copy(_message, 0, buffer, offset, _message.Length);
+            Array.Copy(_stream.GetBuffer(), 0, buffer, offset, _stream.Length);
         }
 
         #region IDisposable implementation

@@ -9,24 +9,27 @@ namespace kansas
         {
         }
 
-        public byte[] GetFramedMessage(AntMessage message)
+        public byte GetFramedMessage(AntMessage message, byte[] buffer)
         {
-            byte[] framedMessage = new byte[message.Length + 3];
-
-            framedMessage[0] = TxSync;
-            framedMessage[1] = message.Length;
-            framedMessage[2] = message.MessageId;
-
-            message.GetMessageContent(framedMessage, 3);
-
-            byte checksum = 0;
-            for (int i = 0; i < framedMessage.Length - 2; i++)
+            if (buffer.Length < (message.Length + 4))
             {
-                checksum ^= framedMessage[i];
+                throw new InvalidOperationException("Buffer Not Long enough");
             }
 
-            framedMessage[framedMessage.Length - 1] = checksum;
-            return framedMessage;
+            buffer[0] = TxSync;
+            buffer[1] = message.Length;
+            buffer[2] = message.MessageId;
+
+            message.GetMessageContent(buffer, 3);
+
+            byte checksum = 0;
+            for (int i = 0; i < message.Length + 3; i++)
+            {
+                checksum ^= buffer[i];
+            }
+
+            buffer[message.Length + 3] = checksum;
+            return (byte)(message.Length + 4);
         }
     }
 }

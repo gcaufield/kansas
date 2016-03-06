@@ -24,6 +24,7 @@ namespace kansas
 
         private bool _stopped;
         private BackgroundWorker _readThread;
+        private readonly object _readLock;
         private readonly ISerialReader _reader;
 
         public event EventHandler<AntMessageEventArgs> MessageRecieved;
@@ -32,11 +33,12 @@ namespace kansas
         {
             _reader = reader;
             _stopped = true;
+            _readLock = new object();
         }
 
         public void Start()
         {
-            lock (this)
+            lock (_readLock)
             {
                 if (_readThread != null)
                 {
@@ -52,7 +54,7 @@ namespace kansas
 
         public void Stop()
         {
-            lock (this)
+            lock (_readLock)
             {
                 if (_readThread == null)
                 {
@@ -61,7 +63,7 @@ namespace kansas
 
                 _readThread.CancelAsync();
 
-                Monitor.Wait(this);
+                Monitor.Wait(_readLock);
                 _readThread.Dispose();
                 _readThread = null;
             }
@@ -83,7 +85,7 @@ namespace kansas
             byte bytesToRead;
             byte mesgOffset = 0;
             ReadState state = ReadState.Sync;
-            byte[] buffer = new byte[BufferSize];
+            byte[] buffer = new byte[256];
             while (!_readThread.CancellationPending)
             {
                 int bytesRead = _reader.Read(buffer);
@@ -113,6 +115,7 @@ namespace kansas
                             Array.Copy(buffer, i, mesgBuffer, mesgOffset, bytesToRead);
                             dataRemaining -= bytesToRead;
                             mesgOffset += bytesToRead;
+                            i += (bytesToRead - 1);
 
                             if (dataRemaining == 0)
                             {
@@ -135,9 +138,9 @@ namespace kansas
                 }
             }
 
-            lock (this)
+            lock (_readLock)
             {
-                Monitor.PulseAll(_readThread);
+                Monitor.PulseAll(_readLock);
             }
         }
 
